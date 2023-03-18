@@ -118,13 +118,3 @@ def verify_single_exponent_equality_proof(
     right2 = point_mul(proof.generator_2, proof.responce)
 
     return (left1 == right1) and (left2 == right2)
-
-proof = generate_single_exponent_equality_proof(
-    42, G, H, 13
-)
-
-result = verify_single_exponent_equality_proof(
-    proof
-)
-
-assert result == True
