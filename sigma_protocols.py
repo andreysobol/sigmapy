@@ -259,25 +259,3 @@ def verify_single_pedersen_inner_product_proof(
         return False
     
     return True
-
-proof = generate_single_pedersen_inner_product_proof(
-    G,
-    H,
-    13,
-    546,
-    1,
-    42,
-    10, # random value for pedersen commitment
-    20, # random value for pedersen commitment
-    30, # random value for pedersen commitment
-    40, # random value for pedersen commitment
-    1234, # random value for outer proof
-    100, # random value for inner proof 1
-    200, # random value for inner proof 2
-)
-
-print(verify_single_pedersen_inner_product_proof(proof))
-
-print(proof)
-
-assert(verify_single_pedersen_inner_product_proof(proof))
