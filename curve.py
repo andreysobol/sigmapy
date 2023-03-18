@@ -70,6 +70,12 @@ def point_add(P1: Optional[Point], P2: Optional[Point]) -> Optional[Point]:
     x3 = (lam * lam - x(P1) - x(P2)) % p
     return (x3, (lam * (x(P1) - x3) - y(P1)) % p)
 
+def point_sub(P1: Optional[Point], P2: Optional[Point]) -> Optional[Point]:
+    # P1 - P2 = P1 + (-P2)
+    if P2 is None:
+        return P1
+    return point_add(P1, (x(P2), -y(P2)))
+
 def point_mul(P: Optional[Point], n: int) -> Optional[Point]:
     R = None
     for i in range(256):
