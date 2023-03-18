@@ -51,6 +51,7 @@ def verify_single_exponent_proof(
 
 class SingleExponentEqualityProof:
     def __init__(
+        self,
         gen_1: Point,
         gen_1_x: Point,
         gen_2: Point,
