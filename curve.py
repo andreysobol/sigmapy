@@ -55,3 +55,25 @@ H = calculate_generator_from_seed(bytes_from_point(G))
 
 assert H != G
 assert H == (33552425859647397784783932218402990106808296067309630743615811230076224837562, 20913732046133990540589283421767849705011106974950605707443476096511212835430)
+
+def point_add(P1: Optional[Point], P2: Optional[Point]) -> Optional[Point]:
+    if P1 is None:
+        return P2
+    if P2 is None:
+        return P1
+    if (x(P1) == x(P2)) and (y(P1) != y(P2)):
+        return None
+    if P1 == P2:
+        lam = (3 * x(P1) * x(P1) * pow(2 * y(P1), p - 2, p)) % p
+    else:
+        lam = ((y(P2) - y(P1)) * pow(x(P2) - x(P1), p - 2, p)) % p
+    x3 = (lam * lam - x(P1) - x(P2)) % p
+    return (x3, (lam * (x(P1) - x3) - y(P1)) % p)
+
+def point_mul(P: Optional[Point], n: int) -> Optional[Point]:
+    R = None
+    for i in range(256):
+        if (n >> i) & 1:
+            R = point_add(R, P)
+        P = point_add(P, P)
+    return R
