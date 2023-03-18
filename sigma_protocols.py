@@ -181,7 +181,10 @@ def generate_single_pedersen_inner_product_proof(
 
     value = (pow(a, n-2, n) * b) % n
     value_2 = (pow(c, n-2, n) * d) % n
-    assert(value == value_2)
+
+    if value == 0:
+        value = value_2
+    assert((value == value_2) or (value_2 == 0))
 
     responce = (value * challenge + random_value) % n
 

@@ -21,6 +21,8 @@ def y(P: Point) -> int:
     return P[1]
 
 def bytes_from_point(P: Point) -> bytes:
+    if is_infinite(P):
+        return b"\x00" * 32
     return bytes_from_int(x(P))
 
 def bytes_from_int(x: int) -> bytes:
