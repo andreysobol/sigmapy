@@ -5,8 +5,8 @@ class SingleExponentProof:
     def __init__(
         self,
         gen: Point,
-        gen_x: Point,
-        commitment: Point,
+        gen_x: Optional[Point],
+        commitment: Optional[Point],
         response: int,
     ):
         self.generator = gen
@@ -55,10 +55,10 @@ class SingleExponentEqualityProof:
         self,
         generator_1: Point,
         generator_2: Point,
-        pedersen_hash_1: Point,
-        pedersen_hash_2: Point,
-        commitment_1: Point,
-        commitment_2: Point,
+        pedersen_hash_1: Optional[Point],
+        pedersen_hash_2: Optional[Point],
+        commitment_1: Optional[Point],
+        commitment_2: Optional[Point],
         response: int,
     ):
         self.generator_1 = generator_1
@@ -124,12 +124,12 @@ class SinglePedersenInnerProductProof:
         self,
         gen_1: Point,
         gen_2: Point,
-        comm_a: Point,
-        comm_b: Point,
-        comm_c: Point,
-        comm_d: Point,
-        commitment_1: Point,
-        commitment_2: Point,
+        comm_a: Optional[Point],
+        comm_b: Optional[Point],
+        comm_c: Optional[Point],
+        comm_d: Optional[Point],
+        commitment_1: Optional[Point],
+        commitment_2: Optional[Point],
         response: int,
         inner_proof_1: SingleExponentProof,
         inner_proof_2: SingleExponentProof
