@@ -6,8 +6,6 @@ def pedersen_commitment(value: int, blinding_factor: int) -> Point:
     return commitment
 
 import unittest
-from curve import G, H, Point, point_mul, point_add
-from pedersen_commitment import pedersen_commitment
 
 class TestPedersenCommitment(unittest.TestCase):
 

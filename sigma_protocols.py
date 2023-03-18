@@ -25,8 +25,6 @@ def generate_single_exponent_proof(
     challenge_bytes = hash_sha256(seed)
     challenge = int_from_bytes(challenge_bytes) % n
 
-    print(challenge)
-
     responce = (value * challenge + random_value) % n
 
     return SingleExponentProof(
@@ -42,7 +40,6 @@ def verify_single_exponent_proof(
     seed = bytes_from_point(proof.pedersen_hash) + bytes_from_point(proof.commitment)
     challenge_bytes = hash_sha256(seed)
     challenge = int_from_bytes(challenge_bytes) % n
-    print(challenge)
 
     left = point_add(
         point_mul(proof.pedersen_hash, challenge),
@@ -51,8 +48,3 @@ def verify_single_exponent_proof(
     right = point_mul(proof.generator, proof.responce) 
 
     return left == right
-
-proof = generate_single_exponent_proof(42, G, 13)
-
-result = verify_single_exponent_proof(proof)
-assert result == True
