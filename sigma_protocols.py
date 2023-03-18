@@ -43,11 +43,13 @@ def verify_single_exponent_proof(
     challenge_bytes = hash_sha256(seed)
     challenge = int_from_bytes(challenge_bytes) % n
     print(challenge)
-    left = point_sub(
-        point_mul(proof.generator, proof.responce),
-        point_mul(proof.pedersen_hash, challenge)
+
+    left = point_add(
+        point_mul(proof.pedersen_hash, challenge),
+        proof.commitment
     )
-    right = proof.commitment
+    right = point_mul(proof.generator, proof.responce) 
+
     return left == right
 
 proof = generate_single_exponent_proof(42, G, 13)
