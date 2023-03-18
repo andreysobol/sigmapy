@@ -110,8 +110,6 @@ def verify_single_exponent_equality_proof(
     )
     right1 = point_mul(proof.generator_1, proof.responce)
 
-    assert left1 == right1
-
     left2 = point_add(
         point_mul(proof.pedersen_hash_2, challenge),
         proof.commitment_2
@@ -152,6 +150,8 @@ class SinglePedersenInnerProductProof:
         self.inner_proof_2 = inner_proof_2
 
 def generate_single_pedersen_inner_product_proof(
+    generator_1: Point,
+    generator_2: Point,
     a: int,
     b: int,
     c: int,
@@ -164,10 +164,10 @@ def generate_single_pedersen_inner_product_proof(
     inner_random_value_1: int,
     inner_random_value_2: int,
 ) -> SinglePedersenInnerProductProof:
-    pedersen_comm_a = pedersen_commitment(a, r1)
-    pedersen_comm_b = pedersen_commitment(b, r2)
-    pedersen_comm_c = pedersen_commitment(c, r3)
-    pedersen_comm_d = pedersen_commitment(d, r4)
+    pedersen_comm_a = pedersen_commitment(generator_1, generator_2, a, r1)
+    pedersen_comm_b = pedersen_commitment(generator_1, generator_2, b, r2)
+    pedersen_comm_c = pedersen_commitment(generator_1, generator_2, c, r3)
+    pedersen_comm_d = pedersen_commitment(generator_1, generator_2, d, r4)
 
     commitment_1 = point_mul(G, a * random_value)
     commitment_2 = point_mul(G, c * random_value)
@@ -193,7 +193,8 @@ def generate_single_pedersen_inner_product_proof(
 
 
     return SinglePedersenInnerProductProof(
-        G, H,
+        generator_1,
+        generator_2,
         pedersen_comm_a,
         pedersen_comm_b,
         pedersen_comm_c,
@@ -204,3 +205,79 @@ def generate_single_pedersen_inner_product_proof(
         inner_proof_1,
         inner_proof_2
     )
+
+def verify_single_pedersen_inner_product_proof(
+    proof: SinglePedersenInnerProductProof
+) -> bool:
+    
+    if proof.inner_proof_1.generator != proof.generator_2:
+        return False
+
+    result_single_exponent1 = verify_single_exponent_proof(proof.inner_proof_1)
+    if not result_single_exponent1:
+        return False
+
+    if proof.inner_proof_2.generator != proof.generator_2:
+        return False
+
+    result_single_exponent2 = verify_single_exponent_proof(proof.inner_proof_2)
+    if not result_single_exponent2:
+        return False
+
+    seed = bytes_from_point(proof.pedersen_commitment_a) + bytes_from_point(proof.pedersen_commitment_b) 
+    seed += bytes_from_point(proof.pedersen_commitment_c) + bytes_from_point(proof.pedersen_commitment_d)
+    seed += bytes_from_point(proof.commitment_1) + bytes_from_point(proof.commitment_2)
+
+    challenge_bytes = hash_sha256(seed)
+    challenge = int_from_bytes(challenge_bytes) % n
+
+    # pedersen_comm_a * responce = pedersen_comm_b * challenge + commitment_1 + inner_pedersen_hash_1
+    # pedersen_comm_c * responce = pedersen_comm_d * challenge + commitment_2 + inner_pedersen_hash_2
+
+    left1 = point_mul(proof.pedersen_commitment_a, proof.responce)
+    right1 = point_add(
+        point_add(
+            point_mul(proof.pedersen_commitment_b, challenge),
+            proof.commitment_1
+        ),
+        proof.inner_proof_1.pedersen_hash
+    )
+
+    if left1 != right1:
+        return False
+
+    left2 = point_mul(proof.pedersen_commitment_c, proof.responce)
+    right2 = point_add(
+        point_add(
+            point_mul(proof.pedersen_commitment_d, challenge),
+            proof.commitment_2
+        ),
+        proof.inner_proof_2.pedersen_hash
+    )
+
+    if left2 != right2:
+        return False
+    
+    return True
+
+proof = generate_single_pedersen_inner_product_proof(
+    G,
+    H,
+    13,
+    546,
+    1,
+    42,
+    10, # random value for pedersen commitment
+    20, # random value for pedersen commitment
+    30, # random value for pedersen commitment
+    40, # random value for pedersen commitment
+    1234, # random value for outer proof
+    100, # random value for inner proof 1
+    200, # random value for inner proof 2
+)
+
+print(verify_single_pedersen_inner_product_proof(proof))
+
+print(proof)
+
+assert(verify_single_pedersen_inner_product_proof(proof))

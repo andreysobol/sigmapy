@@ -6,11 +6,17 @@ import unittest
 class TestPedersenCommitment(unittest.TestCase):
 
     def test_commitment(self):
-        #from curve import point_sub
+        generator_1 = G
+        generator_2 = H
         
         value = 42
         blinding_factor = 13
-        commitment = pedersen_commitment(value, blinding_factor)
+        commitment = pedersen_commitment(
+            generator_1,
+            generator_2,
+            value,
+            blinding_factor
+        )
 
         # Check that the commitment is a point on the curve
         self.assertTrue(lift_x(x(commitment)) is not None)
