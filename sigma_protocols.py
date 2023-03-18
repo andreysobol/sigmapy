@@ -52,18 +52,18 @@ def verify_single_exponent_proof(
 class SingleExponentEqualityProof:
     def __init__(
         self,
-        gen_1: Point,
-        gen_1_x: Point,
-        gen_2: Point,
-        gen_2_x: Point,
+        generator_1: Point,
+        generator_2: Point,
+        pedersen_hash_1: Point,
+        pedersen_hash_2: Point,
         commitment_1: Point,
         commitment_2: Point,
         response: int,
     ):
-        self.generator_1 = gen_1
-        self.generator_2 = gen_2
-        self.pedersen_hash_1 = gen_1_x
-        self.pedersen_hash_2 = gen_2_x
+        self.generator_1 = generator_1
+        self.generator_2 = generator_2
+        self.pedersen_hash_1 = pedersen_hash_1
+        self.pedersen_hash_2 = pedersen_hash_2
         self.commitment_1 = commitment_1
         self.commitment_2 = commitment_2
         self.responce = response
@@ -95,3 +95,36 @@ def generate_single_exponent_equality_proof(
         commitment_2,
         responce
     )
+
+def verify_single_exponent_equality_proof(
+    proof: SingleExponentEqualityProof,
+) -> SingleExponentEqualityProof:
+    seed = bytes_from_point(proof.pedersen_hash_1) + bytes_from_point(proof.pedersen_hash_2) + bytes_from_point(proof.commitment_1) + bytes_from_point(proof.commitment_2)
+    challenge_bytes = hash_sha256(seed)
+    challenge = int_from_bytes(challenge_bytes) % n
+
+    left1 = point_add(
+        point_mul(proof.pedersen_hash_1, challenge),
+        proof.commitment_1
+    )
+    right1 = point_mul(proof.generator_1, proof.responce)
+
+    assert left1 == right1
+
+    left2 = point_add(
+        point_mul(proof.pedersen_hash_2, challenge),
+        proof.commitment_2
+    )
+    right2 = point_mul(proof.generator_2, proof.responce)
+
+    return (left1 == right1) and (left2 == right2)
+
+proof = generate_single_exponent_equality_proof(
+    42, G, H, 13
+)
+
+result = verify_single_exponent_equality_proof(
+    proof
+)
+
+assert result == True
