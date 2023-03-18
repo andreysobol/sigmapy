@@ -2,6 +2,7 @@ from curve import *
 
 class SingleExponentProof:
     def __init__(
+        self,
         gen: Point,
         gen_x: Point,
         commitment: Point,
