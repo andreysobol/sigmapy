@@ -12,6 +12,7 @@ from typing import List
 from boolean_proof import generate_boolean_proof
 from curve import G, H, Point, point_mul, point_add
 from pedersen_commitment import pedersen_commitment
+from sigma_protocols import *
 
 def is_power_of_two(n):
     return (n != 0 and math.log2(n).is_integer())
@@ -23,6 +24,19 @@ def get_power_of_two(n):
 def get_bit(n, i):
     """Returns the value of the i-th bit of n"""
     return (n >> i) & 1
+
+class RangeProof:
+    def __init__(
+        self,
+        main_commitment,
+        witness_bit_commitments: List[Point],
+        boolean_proofs: List[SinglePedersenInnerProductProof],
+        final_inner_proof: SingleExponentProof,
+    ):
+        self.main_commitment = main_commitment
+        self.witness_bit_commitments = witness_bit_commitments
+        self.boolean_proofs = boolean_proofs
+        self.final_inner_proof = final_inner_proof
 
 def range_proof(
     generator_1: Point,
