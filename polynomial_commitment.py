@@ -76,27 +76,3 @@ def verify_polynomial_commitment_proof(
         return False
     
     return True
-
-
-point = 54354453
-coeffs = [33234, 43434, 4343, 43455]
-rand_vals = [243, 234, 242, 343]
-
-poly_comm = PolynomialCommitment(G, H, coeffs, rand_vals)
-
-(proof, value) = generate_polynomial_commitment_proof(
-    H,
-    coeffs,
-    rand_vals,
-    point,
-    434,
-)
-
-assert verify_polynomial_commitment_proof(
-    G,
-    H,
-    point,
-    value,
-    poly_comm,
-    proof
-)
