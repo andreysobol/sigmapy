@@ -38,15 +38,15 @@ class RangeProof:
         self.boolean_proofs = boolean_proofs
         self.final_inner_proof = final_inner_proof
 
-def range_proof(
+def generate_range_proof(
     generator_1: Point,
     generator_2: Point,
     value: int,
     n: int,
-    value_commitment: Point,
     blinding_factor_for_value_commitment: int,
-    blinding_factors: List[int]
-) -> bool:
+    blinding_factors: List[int],
+    random_value_for_inner_proof: int,
+) -> RangeProof:
     
     assert value < n
     
@@ -65,16 +65,32 @@ def range_proof(
         blinding_factors[4*i+3],
     ) for i in range(power_of_two)]
 
-    coeffs = value_bits
-
     b_muls = [blinding_factors[4*i+1] * 2**i for i in range(power_of_two)]
     b_sum = reduce(lambda x,y: x+y, b_muls, 0)
 
-    """
-    pedersen_commitments = [pedersen_commitment(
-        G,
-        H,
-        value_bits[i],
-        12345,
-    ) for i in range(power_of_two)]
-    """
+    inner_exponent = b_sum - blinding_factor_for_value_commitment
+
+    inner_proof = generate_single_exponent_proof(
+        inner_exponent,
+        generator_2,
+        blinding_factors[4*power_of_two],
+        random_value_for_inner_proof,
+    )
+
+    main_commitment = pedersen_commitment(
+        generator_1,
+        generator_2,
+        value,
+        blinding_factor_for_value_commitment
+    )
+
+    witness_bit_commitments = [boolean_proofs[i].pedersen_commitment_b for i in range(power_of_two)]
+
+    range_proof = RangeProof(
+        main_commitment,
+        witness_bit_commitments,
+        boolean_proofs,
+        inner_proof,
+    )
+
+    return range_proof
