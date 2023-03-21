@@ -6,7 +6,7 @@
 # k0, k1, k2 ... kn-1 are 0 or 1
 
 import math
-from itertools import reduce
+from functools import reduce
 from typing import List
 
 from boolean_proof import generate_boolean_proof, verify_boolean_proof
@@ -28,10 +28,14 @@ def get_bit(n, i):
 class RangeProof:
     def __init__(
         self,
+        generator_1: Point,
+        generator_2: Point,
         main_commitment,
         boolean_proofs: List[SinglePedersenInnerProductProof],
         final_inner_proof: SingleExponentProof,
     ):
+        self.generator_1 = generator_1
+        self.generator_2 = generator_2
         self.main_commitment = main_commitment
         self.boolean_proofs = boolean_proofs
         self.final_inner_proof = final_inner_proof
@@ -71,7 +75,6 @@ def generate_range_proof(
     inner_proof = generate_single_exponent_proof(
         inner_exponent,
         generator_2,
-        blinding_factors[4*power_of_two],
         random_value_for_inner_proof,
     )
 
@@ -83,6 +86,8 @@ def generate_range_proof(
     )
 
     range_proof = RangeProof(
+        generator_1,
+        generator_2,
         main_commitment,
         boolean_proofs,
         inner_proof,
@@ -91,8 +96,6 @@ def generate_range_proof(
     return range_proof
 
 def verify_range_proof(
-    generator_1: Point,
-    generator_2: Point,
     proof: RangeProof,
     n: int,
 ) -> bool:
@@ -100,17 +103,23 @@ def verify_range_proof(
 
     if power_of_two != len(proof.boolean_proofs):
         return False
+    
+    if proof.generator_2 != proof.final_inner_proof.generator:
+        return False
 
     if not verify_single_exponent_proof(
-        generator_2,
         proof.final_inner_proof,
     ):
         return False
     
     for i in range(power_of_two):
+        if proof.boolean_proofs[i].generator_1 != proof.generator_1:
+            return False
+        
+        if proof.boolean_proofs[i].generator_2 != proof.generator_2:
+            return False
+
         if not verify_boolean_proof(
-            generator_1,
-            generator_2,
             proof.boolean_proofs[i],
         ):
             return False
@@ -120,7 +129,8 @@ def verify_range_proof(
     witness_bit_commitments_mul = [point_mul(witness_bit_commitments[i], 2**i) for i in range(power_of_two)]
     witness_bit_commitments_sum = reduce(lambda x,y: point_add(x,y), witness_bit_commitments_mul[1:], witness_bit_commitments[0])
 
-    if point_sub(witness_bit_commitments_sum, proof.main_commitment) != proof.final_inner_proof.exponent:
+    if point_sub(witness_bit_commitments_sum, proof.main_commitment) != proof.final_inner_proof.commitment:
+        print("commitment check failed")
         return False
 
     return True
