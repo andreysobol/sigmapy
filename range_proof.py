@@ -127,7 +127,7 @@ def verify_range_proof(
     witness_bit_commitments = [proof.boolean_proofs[i].pedersen_commitment_b for i in range(power_of_two)]
 
     witness_bit_commitments_mul = [point_mul(witness_bit_commitments[i], 2**i) for i in range(power_of_two)]
-    witness_bit_commitments_sum = reduce(lambda x,y: point_add(x,y), witness_bit_commitments_mul)
+    witness_bit_commitments_sum = reduce(point_add, witness_bit_commitments_mul)
 
     if point_sub(witness_bit_commitments_sum, proof.main_commitment) != proof.final_inner_proof.commitment:
         print("commitment check failed")
