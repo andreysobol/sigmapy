@@ -67,8 +67,8 @@ def generate_range_proof(
         blinding_factors[4*i+3],
     ) for i in range(power_of_two)]
 
-    b_muls = [blinding_factors[4*i+1] * 2**i for i in range(power_of_two)]
-    b_sum = reduce(lambda x,y: x+y, b_muls, 0)
+    b_muls = [blinding_factors[4*i] * 2**i for i in range(power_of_two)]
+    b_sum = reduce(lambda x,y: x+y, b_muls)
 
     inner_exponent = b_sum - blinding_factor_for_value_commitment
 
